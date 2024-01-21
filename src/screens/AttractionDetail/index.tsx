@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import MapView, { Marker } from 'react-native-maps';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import {
   SafeAreaView,
   Text,
@@ -6,6 +9,8 @@ import {
   ImageBackground,
   Image,
   Pressable,
+  ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import AttractionData from '../../data/attractions.json';
 import styles from './styles';
@@ -59,54 +64,127 @@ const AttractionDetail = ({ navigation, route }: Props) => {
   const onBack = () => {
     navigation.goBack();
   };
+
+  const downloadImage = async () => {
+    if (mainImage) {
+      const directory = `${FileSystem.documentDirectory}images/`;
+      const fileUri = `${directory}image.jpg`;
+
+      try {
+        // Ensure the directory exists
+        await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
+
+        // Download the image
+        const { uri: downloadedUri } = await FileSystem.downloadAsync(
+          mainImage,
+          fileUri
+        );
+        console.log('Image downloaded to:', downloadedUri);
+
+        return downloadedUri;
+      } catch (error) {
+        console.error('Error downloading image:', error);
+        return null;
+      }
+    }
+  };
+
+  const onShare = async () => {
+    try {
+      const downloadedUri = await downloadImage();
+
+      if (downloadedUri) {
+        await Sharing.shareAsync(downloadedUri, {
+          dialogTitle: `I wanted to share beautiful image of ${attraction?.name}`,
+        });
+      } else {
+        console.error('Error downloading image.');
+      }
+    } catch (error) {
+      console.error('Error sharing image:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <ImageBackground
-        imageStyle={{ borderRadius: 20 }}
-        style={styles.mainImage}
-        source={{ uri: mainImage }}
-      >
-        <View style={styles.innerImage}>
-          <View style={styles.header}>
-            <Pressable onPress={onBack} hitSlop={8}>
-              <Image
-                style={styles.icon}
-                source={require('../../assets/back.png')}
-              />
-            </Pressable>
-            <Pressable hitSlop={8}>
-              <Image
-                style={styles.icon}
-                source={require('../../assets/share.png')}
-              />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ImageBackground
+          imageStyle={{ borderRadius: 20 }}
+          style={styles.mainImage}
+          source={{ uri: mainImage }}
+        >
+          <View style={styles.innerImage}>
+            <View style={styles.header}>
+              <Pressable onPress={onBack} hitSlop={8}>
+                <Image
+                  style={styles.icon}
+                  source={require('../../assets/back.png')}
+                />
+              </Pressable>
+              <Pressable onPress={onShare} hitSlop={8}>
+                <Image
+                  style={styles.icon}
+                  source={require('../../assets/share.png')}
+                />
+              </Pressable>
+            </View>
+            <Pressable style={styles.footer} onPress={navigateToGallery}>
+              {slicedImages?.map((image, index) => (
+                <View key={image}>
+                  <Image style={styles.miniImage} source={{ uri: image }} />
+                  {diffImages > 0 && slicedImages.length - 1 === index ? (
+                    <Text style={styles.moreImages}>+{diffImages}</Text>
+                  ) : null}
+                </View>
+              ))}
             </Pressable>
           </View>
-          <Pressable style={styles.footer} onPress={navigateToGallery}>
-            {slicedImages?.map((image, index) => (
-              <View key={image}>
-                <Image style={styles.miniImage} source={{ uri: image }} />
-                {diffImages > 0 && slicedImages.length - 1 === index ? (
-                  <Text style={styles.moreImages}>+{diffImages}</Text>
-                ) : null}
-              </View>
-            ))}
-          </Pressable>
+        </ImageBackground>
+        <View style={styles.headerContainer}>
+          <View>
+            <Title style={styles.title} title={attraction?.name} />
+            <Text style={styles.city}>{attraction?.city}</Text>
+          </View>
+          <Title style={styles.price} title={attraction?.entry_price} />
         </View>
-      </ImageBackground>
-      <View style={styles.headerContainer}>
-        <View>
-          <Title style={styles.title} title={attraction?.name} />
-          <Text style={styles.city}>{attraction?.city}</Text>
-        </View>
-        <Title style={styles.price} title={attraction?.entry_price} />
-      </View>
 
-      <InfoCard title={attraction?.address} type='address' />
-      <InfoCard
-        title={`OPEN
+        <InfoCard title={attraction?.address} type='address' />
+        <InfoCard
+          title={`OPEN
 ${attraction?.opening_time} - ${attraction?.closing_time}`}
-        type='clock'
-      />
+          type='clock'
+        />
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Map', {
+              coordinates: attraction?.coordinates,
+              name: attraction?.name,
+              city: attraction?.city,
+            })
+          }
+          style={styles.mapContainer}
+        >
+          {attraction?.coordinates && (
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: attraction?.coordinates.lat,
+                longitude: attraction?.coordinates.lon,
+                latitudeDelta: 0.009,
+                longitudeDelta: 0.009,
+              }}
+            >
+              <Marker
+                coordinate={{
+                  latitude: attraction?.coordinates.lat,
+                  longitude: attraction?.coordinates.lon,
+                }}
+                title={attraction?.name}
+              />
+            </MapView>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 };

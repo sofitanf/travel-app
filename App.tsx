@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Home from './src/screens/Home';
 import AttractionDetail from './src/screens/AttractionDetail';
 import Gallery from './src/screens/Gallery';
+import Map from './src/screens/Map';
 import { RootStackParamList } from './src/types/RootStackParams';
 
 const RootStack = createStackNavigator<RootStackParamList>();
@@ -27,6 +28,7 @@ export default function App() {
           component={AttractionDetail}
         />
         <RootStack.Screen name='Gallery' component={Gallery} />
+        <RootStack.Screen name='Map' component={Map} />
       </RootStack.Navigator>
     </NavigationContainer>
   );

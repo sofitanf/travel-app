@@ -58,7 +58,8 @@ const styles = StyleSheet.create({
   headerContainer: {
     justifyContent: 'space-between',
     flexDirection: 'row',
-    marginVertical: 30,
+    marginTop: 30,
+    marginBottom: 20,
   },
   title: {
     color: '#000',
@@ -70,6 +71,12 @@ const styles = StyleSheet.create({
   price: {
     color: '#000',
   },
+  mapContainer: {
+    marginTop: 28,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  map: { width: '100%', height: 200, borderRadius: 10 },
 });
 
 export default styles;
