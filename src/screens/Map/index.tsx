@@ -6,15 +6,19 @@ import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/RootStackParams';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
-
 type Props = {
-  navigation: MapScreenNavigationProp;
+  navigation: StackNavigationProp<RootStackParamList, 'Map'>;
   route: RouteProp<RootStackParamList, 'Map'>;
 };
 
 const Map = ({ route, navigation }: Props) => {
   const { coordinates, name, city } = route.params;
+
+  const location = {
+    latitude: coordinates?.lat ?? 0,
+    longitude: coordinates?.lon ?? 0,
+  };
+
   const onBack = () => {
     navigation.goBack();
   };
@@ -25,19 +29,12 @@ const Map = ({ route, navigation }: Props) => {
         <MapView
           style={styles.map}
           initialRegion={{
-            latitude: coordinates?.lat,
-            longitude: coordinates?.lon,
             latitudeDelta: 0.009,
             longitudeDelta: 0.009,
+            ...location,
           }}
         >
-          <Marker
-            coordinate={{
-              latitude: coordinates?.lat,
-              longitude: coordinates?.lon,
-            }}
-            title={name}
-          />
+          <Marker coordinate={{ ...location }} title={name} />
         </MapView>
       )}
       <View style={styles.titleContainer}>

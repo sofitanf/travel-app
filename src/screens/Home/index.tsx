@@ -11,10 +11,8 @@ import categoriesData from '../../data/categories.json';
 import { RootStackParamList } from '../../types/RootStackParams';
 import { IAttraction } from '../../types/Attraction';
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-
 type Props = {
-  navigation: HomeScreenNavigationProp;
+  navigation: StackNavigationProp<RootStackParamList, 'Home'>;
 };
 
 const All = 'All';

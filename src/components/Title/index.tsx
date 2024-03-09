@@ -3,7 +3,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import styles from './styles';
 
-export interface TitleProps {
+interface TitleProps {
   title?: string;
   style?: object;
 }

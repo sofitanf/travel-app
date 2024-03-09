@@ -21,40 +21,47 @@ import { RouteProp } from '@react-navigation/native';
 import Title from '../../components/Title';
 import InfoCard from '../../components/InfoCard';
 
-type AttractionDetailScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'AttractionDetail'
->;
-
 type Props = {
-  navigation: AttractionDetailScreenNavigationProp;
+  navigation: StackNavigationProp<RootStackParamList, 'AttractionDetail'>;
   route: RouteProp<RootStackParamList, 'AttractionDetail'>;
 };
 
 const AttractionDetail = ({ navigation, route }: Props) => {
   const attractionId = route?.params?.attractionId;
   const [attraction, setAttraction] = useState<IAttraction>();
-  const [mainImage, setMainImage] = useState<string>();
-  const [slicedImages, setSliceImages] = useState<string[] | undefined>([]);
-  const [diffImages, setDiffImages] = useState<number>(0);
+  // const [mainImage, setMainImage] = useState<string>();
+  // const [slicedImages, setSliceImages] = useState<string[] | undefined>([]);
+  // const [diffImages, setDiffImages] = useState<number>(0);
+
+  const location = {
+    latitude: attraction?.coordinates.lat ?? 0,
+    longitude: attraction?.coordinates.lon ?? 0,
+  };
+
+  const mainImage = attraction?.images[0];
+  const slicedImages = attraction?.images.slice(0, 5);
+  const diffImages =
+    attraction?.images && slicedImages?.length
+      ? attraction?.images.length - slicedImages?.length
+      : 0;
 
   useEffect(() => {
     const result = AttractionData.find(
       (item) => item.id == parseInt(attractionId)
     );
     setAttraction(result);
-    setMainImage(result?.images[0]);
+    // setMainImage(result?.images[0]);
 
     // sliced images
-    const slice = result?.images && result?.images.slice(0, 5);
-    setSliceImages(slice);
+    // const slice = result?.images && result?.images.slice(0, 5);
+    // setSliceImages(slice);
 
     // diff images
-    const diff =
-      result?.images && slice?.length
-        ? result?.images.length - slice?.length
-        : 0;
-    setDiffImages(diff);
+    // const diff =
+    //   result?.images && slice?.length
+    //     ? result?.images.length - slice?.length
+    //     : 0;
+    // setDiffImages(diff);
   }, []);
 
   const navigateToGallery = () => {
@@ -168,16 +175,14 @@ ${attraction?.opening_time} - ${attraction?.closing_time}`}
             <MapView
               style={styles.map}
               initialRegion={{
-                latitude: attraction?.coordinates.lat,
-                longitude: attraction?.coordinates.lon,
                 latitudeDelta: 0.009,
                 longitudeDelta: 0.009,
+                ...location,
               }}
             >
               <Marker
                 coordinate={{
-                  latitude: attraction?.coordinates.lat,
-                  longitude: attraction?.coordinates.lon,
+                  ...location,
                 }}
                 title={attraction?.name}
               />

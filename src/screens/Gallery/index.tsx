@@ -11,13 +11,8 @@ import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/RootStackParams';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-type GalleryScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'Gallery'
->;
-
 type Props = {
-  navigation: GalleryScreenNavigationProp;
+  navigation: StackNavigationProp<RootStackParamList, 'Gallery'>;
   route: RouteProp<RootStackParamList, 'Gallery'>;
 };
 
